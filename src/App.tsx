@@ -72,7 +72,7 @@ export default function App() {
   const [employees, setEmployees] = useState<AppUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSuggesting, setIsSuggesting] = useState(false);
-  const [activeTab, setActiveTab] = useState<'calendar' | 'admin' | 'profile' | 'stats' | 'search'>('calendar');
+  const [activeTab, setActiveTab] = useState<'calendar' | 'profile' | 'stats' | 'search'>('calendar');
   const [searchName, setSearchName] = useState('');
   const [searchResults, setSearchResults] = useState<Shift[]>([]);
   const [stats, setStats] = useState<any>({ fri: [], sat: [], tue: [], total: [] });
@@ -341,16 +341,6 @@ export default function App() {
             <span>الإحصائيات</span>
           </button>
           
-          {appUser?.role === 'admin' && (
-            <button 
-              onClick={() => setActiveTab('admin')}
-              className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all font-bold uppercase text-sm tracking-widest ${activeTab === 'admin' ? 'bg-[#E0FF4F] text-black italic' : 'hover:bg-white/5 text-[#a3a3a3] opacity-60'}`}
-            >
-              <Users className="w-5 h-5" />
-              <span>الإدارة</span>
-            </button>
-          )}
-
           <button 
             onClick={() => setActiveTab('profile')}
             className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all font-bold uppercase text-sm tracking-widest ${activeTab === 'profile' ? 'bg-[#E0FF4F] text-black italic' : 'hover:bg-white/5 text-[#a3a3a3] opacity-60'}`}
@@ -376,7 +366,7 @@ export default function App() {
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16 relative z-10">
           <div>
             <h2 className="text-[80px] leading-[0.9] font-black text-[#E0FF4F] mb-4 italic tracking-tighter">
-              {activeTab === 'calendar' ? 'خارطة الشيفتات' : activeTab === 'admin' ? 'مركز التحكم' : activeTab === 'search' ? 'سجلات الموظفين' : activeTab === 'stats' ? 'لوحة الشرف' : 'إعدادات الحساب'}
+              {activeTab === 'calendar' ? 'خارطة الشيفتات' : activeTab === 'search' ? 'سجلات الموظفين' : activeTab === 'stats' ? 'لوحة الشرف' : 'إعدادات الحساب'}
             </h2>
             <p className="text-xl text-gray-500 font-light max-w-lg">مرحباً، {appUser?.displayName} — {appUser?.role === 'admin' ? 'مدير النظام' : 'عضو الفريق'}</p>
           </div>
@@ -571,35 +561,6 @@ export default function App() {
                   </div>
                 </div>
               ))}
-            </div>
-          )}
-
-          {activeTab === 'admin' && (
-            <div className="bg-[#111] border border-[#222] rounded-2xl overflow-hidden shadow-2xl">
-              <table className="w-full text-right border-collapse">
-                <thead>
-                  <tr className="bg-black/50">
-                    <th className="px-8 py-6 font-black uppercase text-xs tracking-widest text-[#E0FF4F] border-b border-[#222]">الموظف</th>
-                    <th className="px-8 py-6 font-black uppercase text-xs tracking-widest text-[#E0FF4F] border-b border-[#222]">البريد</th>
-                    <th className="px-8 py-6 font-black uppercase text-xs tracking-widest text-[#E0FF4F] border-b border-[#222]">الرتبة</th>
-                    <th className="px-8 py-6 font-black uppercase text-xs tracking-widest text-[#E0FF4F] border-b border-[#222]">الإجراءات</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[#222]">
-                  {employees.map((emp) => (
-                    <tr key={emp.uid} className="hover:bg-white/[0.02] transition-colors">
-                      <td className="px-8 py-6 font-bold">{emp.displayName}</td>
-                      <td className="px-8 py-6 text-gray-500 text-sm">{emp.email}</td>
-                      <td className="px-8 py-6">
-                        <span className="px-3 py-1 rounded bg-[#E0FF4F]/10 text-[#E0FF4F] text-[10px] font-black uppercase italic tracking-widest">{emp.role}</span>
-                      </td>
-                      <td className="px-8 py-6">
-                        <button className="text-white hover:text-[#E0FF4F] transition-colors font-black uppercase text-[10px] tracking-widest italic">عرض التفاصيل</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
             </div>
           )}
 
