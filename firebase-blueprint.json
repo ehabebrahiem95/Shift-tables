@@ -1,0 +1,45 @@
+{
+  "entities": {
+    "user": {
+      "title": "User",
+      "description": "Information about employees and managers.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "employee"] },
+        "availability": { "type": "object" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "shift": {
+      "title": "Shift",
+      "description": "A scheduled work shift.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "startTime": { "type": "string", "format": "date-time" },
+        "endTime": { "type": "string", "format": "date-time" },
+        "userId": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "completed"] },
+        "notes": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "startTime", "endTime"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "user",
+      "description": "User profiles and settings."
+    },
+    "/shifts/{shiftId}": {
+      "schema": "shift",
+      "description": "All shifts managed by the system."
+    }
+  }
+}

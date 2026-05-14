@@ -1,0 +1,83 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return isVerified() && (
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+        request.auth.token.email == 'ehabebrahiem95@gmail.com'
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // User validation
+    function isValidUser(data) {
+      return data.uid is string &&
+             data.email is string &&
+             data.role in ['admin', 'employee'] &&
+             data.displayName is string &&
+             data.displayName.size() <= 100 &&
+             data.createdAt is timestamp;
+    }
+
+    match /users/{userId} {
+      allow get: if isSignedIn();
+      allow list: if isAdmin();
+      allow create: if isVerified() && isOwner(userId) && isValidUser(incoming()) && 
+                    (incoming().role == 'employee' || (incoming().role == 'admin' && request.auth.token.email == 'ehabebrahiem95@gmail.com'));
+      allow update: if isSignedIn() && (
+        (isOwner(userId) && incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'availability'])) ||
+        isAdmin()
+      ) && isValidUser(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // Shift validation
+    function isValidShift(data) {
+      return data.title is string && data.title.size() <= 100 &&
+             data.startTime is timestamp &&
+             data.endTime is timestamp &&
+             (data.userId == null || data.userId is string) &&
+             data.status in ['pending', 'confirmed', 'completed'];
+    }
+
+    match /shifts/{shiftId} {
+      allow read: if isSignedIn();
+      allow create: if isAdmin() && isValidShift(incoming());
+      allow update: if isSignedIn() && (
+        isAdmin() ||
+        (existing().status != 'completed' && isOwner(existing().userId) && incoming().diff(existing()).affectedKeys().hasOnly(['status']) && incoming().status in ['confirmed', 'completed'])
+      ) && isValidShift(incoming());
+      allow delete: if isAdmin();
+    }
+  }
+}
